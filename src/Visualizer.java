@@ -18,7 +18,7 @@ public class Visualizer extends Frame implements Runnable {
 	public final int MAX_BAR_HEIGHT = 300;
 	
 	// Time constants.
-	public final short DRAW_DELAY = 22;
+	public final short DRAW_DELAY = 23;
 	public final short TIME_OUT = 200;
 	
 	// States and attributes.
