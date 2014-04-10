@@ -9,10 +9,12 @@ import java.util.Queue;
 public class Visualizer extends Frame implements Runnable {
 	
 	// Graphics constants.
-	public final short DISPLAY_START_X = 12;
-	public final short DISPLAY_START_Y = 250;
 	public final short WINDOW_WIDTH;
-	public final short WINDOW_HEIGHT = 300;
+	public final short WINDOW_HEIGHT = 400;
+	public final short DISPLAY_START_X = 12;
+	public final short DISPLAY_START_Y = WINDOW_HEIGHT - 10;
+	
+	public final int BAR_WIDTH = 5;
 	public final int MAX_BAR_HEIGHT = 300;
 	
 	// Time constants.
@@ -53,7 +55,7 @@ public class Visualizer extends Frame implements Runnable {
 				
 				for(int i=1; i<presentamplitudes.length/2; i++)
 				{
-					imagegraphics.drawLine(i + DISPLAY_START_X, DISPLAY_START_Y - (int)(presentamplitudes[i]*scale), i + DISPLAY_START_X, DISPLAY_START_Y);
+					imagegraphics.fillRect(i*BAR_WIDTH + DISPLAY_START_X, DISPLAY_START_Y - (int)(presentamplitudes[i]*scale), BAR_WIDTH, (int)(presentamplitudes[i]*scale));
 				}	
 			}
 			
@@ -79,7 +81,7 @@ public class Visualizer extends Frame implements Runnable {
 		this.amplitudes = amplitudes;
 		this.N = N;
 		
-		WINDOW_WIDTH = (short) (2*DISPLAY_START_X + this.N/2); //only display half (data is mirrored in Fourier transforms)
+		WINDOW_WIDTH = (short) (2*DISPLAY_START_X + BAR_WIDTH*this.N/2); //only display half (data is mirrored in Fourier transforms)
 		
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		setVisible(true);
