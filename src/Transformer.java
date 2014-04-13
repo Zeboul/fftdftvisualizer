@@ -2,11 +2,11 @@ import java.util.Queue;
 
 public abstract class Transformer implements Runnable
 {
-	Queue<double[]> queue;
-	int[] datas;
-	int numBins;
-	int samplingFreq;
-	final int REFRESH_RATE = 60;
+	protected Queue<double[]> queue;
+	protected int[] datas;
+	protected int numBins;
+	protected int samplingFreq;
+	protected final int REFRESH_RATE = 60;
 	
 	public Transformer(Queue<double[]> q, Song song, int numBins) throws Exception
 	{

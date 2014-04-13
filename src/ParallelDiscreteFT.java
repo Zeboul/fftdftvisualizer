@@ -11,7 +11,6 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 		super(queue, song, numBins, startPos, incSize);
 	}
 	
-	// TODO: WIP, Patrick
 	@Override
 	public void run()
 	{
@@ -19,6 +18,7 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 		Thread[] thread = new Thread[NUM_PROCS];
 		SequentialDiscreteFT[] sequentialDiscreteFT = new SequentialDiscreteFT[NUM_PROCS];
 		List<Queue<double[]>> threadQueues = new LinkedList<Queue<double[]>>();
+		double[] data = null;
 		
 		try
 		{
@@ -33,7 +33,7 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 
 			for (int i = 0; i + numBins < datas.length; i += incSize)
 			{
-				double[] data = null;
+				data = null;
 
 				do
 				{

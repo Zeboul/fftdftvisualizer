@@ -30,6 +30,7 @@ public class Main
 		ConcurrentLinkedQueue<double[]> q = new ConcurrentLinkedQueue<double[]>();
 		Thread visualizerThread;
 		Thread transformerThread;
+		long startTime, endTime;
 
 		if (args.length < 3 || args.length > 3)
 		{
@@ -46,7 +47,7 @@ public class Main
 
 			// TODO: put this back after testing
 			//FRAME_SZ = song.getSamplingFreq() * 1 / 60;
-			FRAME_SZ = 256;
+			FRAME_SZ = 1024;
 			NBINS = FRAME_SZ;
 
 			System.out.format("Frame Size: %d%n", FRAME_SZ);
@@ -85,6 +86,7 @@ public class Main
 			// Transformer
 			System.out.println("Starting Transform...");
 			transformerThread = new Thread(transformer);
+			startTime = System.currentTimeMillis();
 			transformerThread.start();
 		}
 		catch (Exception e)
@@ -97,7 +99,8 @@ public class Main
 		try
 		{
 			transformerThread.join();
-			System.out.println("Joined Transformer");
+			endTime = System.currentTimeMillis();
+			System.out.format("Joined Transformer: Execution time: %d%n", endTime - startTime);
 			visualizerThread.join();
 			System.out.println("Joined Visualizer");
 		}
