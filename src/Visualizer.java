@@ -9,33 +9,37 @@ import java.util.Queue;
 public class Visualizer extends Frame implements Runnable {
 	
 	// Graphics constants.
-	public final short WINDOW_WIDTH;
+	public short WINDOW_WIDTH = 800;
 	public final short WINDOW_HEIGHT = 400;
 	public final short DISPLAY_START_X = 12;
 	public final short DISPLAY_START_Y = WINDOW_HEIGHT - 10;
 	
-	public final int BAR_WIDTH = 5;
-	public final int MAX_BAR_HEIGHT = 300;
+	public short BAR_WIDTH = 5;
+	public final int MAX_BAR_HEIGHT = 350;
 	
 	// Time constants.
 	public final short DRAW_DELAY = 23;
-	public final short TIME_OUT = 200;
+	public final short TIME_OUT = 500;
 	
 	// States and attributes.
 	private final int N;
 	private Queue<double[]> amplitudes = null;
 	double[] presentamplitudes = null;
 	
-	
+
 	// Component used to paint the amplitude bars.
 	private Component painter = new Component() 
 	{
+		Image image;
 		// Override the paint method to draw the amplitude bars.
 		@Override
 		public void paint(Graphics graphics)
 		{	
 			// Paint the background onto the buffered image.
-			Image image = createImage(WINDOW_WIDTH, WINDOW_HEIGHT);
+			if(image == null)
+			{
+				image = createImage(WINDOW_WIDTH, WINDOW_HEIGHT);
+			}
 			Graphics imagegraphics = image.getGraphics();
 			imagegraphics.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 			
@@ -74,19 +78,27 @@ public class Visualizer extends Frame implements Runnable {
 	
 	
 	// Constructor.
-	public Visualizer(Queue<double[]> amplitudes ,int N) //N is number of bins
+	public Visualizer(Queue<double[]> amplitudes ,int N /* numBins */)
 	{
 		super("Visualizer");
 		
 		this.amplitudes = amplitudes;
 		this.N = N;
 		
-		WINDOW_WIDTH = (short) (2*DISPLAY_START_X + BAR_WIDTH*this.N/2); //only display half (data is mirrored in Fourier transforms)
+		// Adjust bar and window widths.
+		if((2*DISPLAY_START_X + this.N/2) >= WINDOW_WIDTH)
+		{
+			BAR_WIDTH = 1;
+			WINDOW_WIDTH = (short) (2*DISPLAY_START_X + BAR_WIDTH*this.N/2);
+		}
+		else
+		{
+			BAR_WIDTH = (short) (2*(WINDOW_WIDTH - 2*DISPLAY_START_X)/this.N);
+		}
 		
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		setVisible(true);
 		setBackground(Color.BLACK);
-		painter.setVisible(true);
 		add(painter);
 	}
 	
@@ -100,9 +112,18 @@ public class Visualizer extends Frame implements Runnable {
 			long starttime = System.currentTimeMillis();
 			while(amplitudes.isEmpty())
 			{
-				if(System.currentTimeMillis() - starttime > TIME_OUT)
+				try
+				{
+					Thread.sleep(10);
+				}
+				catch (InterruptedException e)
+				{
+				}
+				long poll_time;
+				if((poll_time = System.currentTimeMillis() - starttime) > TIME_OUT)
 				{
 					this.dispose();
+					System.out.println("Visualizer.java: Timed out after "+poll_time+" [ms] of no data.");///////////////Debug Output.
 					return;
 				}
 			}
