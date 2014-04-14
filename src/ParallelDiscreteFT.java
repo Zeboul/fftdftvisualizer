@@ -34,7 +34,7 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 			for (int i = 0; i < NUM_PROCS; i++)
 				thread[i].start();
 
-			for (int i = 0; i < datas.length / incSize - 1; i++)
+			for (int i = 0; i < datas.length / incSize - NUM_PROCS; i++)
 			{
 				data = null;
 
