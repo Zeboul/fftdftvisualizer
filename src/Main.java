@@ -30,6 +30,7 @@ public class Main
 		ConcurrentLinkedQueue<double[]> q = new ConcurrentLinkedQueue<double[]>();
 		Thread visualizerThread;
 		Thread transformerThread;
+		Clip clip;
 		long startTime, endTime;
 
 		if (args.length < 3 || args.length > 3)
@@ -47,7 +48,7 @@ public class Main
 
 			// TODO: put this back after testing
 			//FRAME_SZ = song.getSamplingFreq() * 1 / 60;
-			FRAME_SZ = 1024;
+			FRAME_SZ = 512;
 			NBINS = FRAME_SZ;
 
 			System.out.format("Frame Size: %d%n", FRAME_SZ);
@@ -75,7 +76,8 @@ public class Main
 			}
 			
 			// Play the music file.
-			playMusic(args[0]);
+			clip = getMusicClip(args[0]);
+			clip.start();
 
 			// Initialize and start the visualizer
 			System.out.println("Initializing Visualizer...");
@@ -101,8 +103,12 @@ public class Main
 			transformerThread.join();
 			endTime = System.currentTimeMillis();
 			System.out.format("Joined Transformer: Execution time: %d%n", endTime - startTime);
+			visualizerThread.interrupt();
+			System.out.println("Interrupting visualizer..");
 			visualizerThread.join();
 			System.out.println("Joined Visualizer");
+			clip.close();
+			System.out.println("Closed music clip");
 		}
 		catch (InterruptedException e)
 		{
@@ -111,8 +117,8 @@ public class Main
 		}
 	}
 
-	// Play the music file.
-	public static void playMusic(String fileName)
+	// Get the clip object to play the music.
+	public static Clip getMusicClip(String fileName)
 	{
 		try 
 		{
@@ -121,12 +127,13 @@ public class Main
 		    DataLine.Info info = new DataLine.Info(Clip.class, format);
 		    Clip clip = (Clip) AudioSystem.getLine(info);
 		    clip.open(stream);
-		    clip.start();
+		    return clip;
 		}
 		catch (Exception e) 
 		{
 			System.out.println("Failed to play music.");
 		}
+		return null;
 	}
 }
 

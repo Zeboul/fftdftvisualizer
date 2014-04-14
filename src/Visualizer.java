@@ -19,7 +19,6 @@ public class Visualizer extends Frame implements Runnable {
 	
 	// Time constants.
 	public final short DRAW_DELAY = 23;
-	public final short TIME_OUT = 500;
 	
 	// States and attributes.
 	private final int N;
@@ -109,21 +108,12 @@ public class Visualizer extends Frame implements Runnable {
 	{
 		while(true)
 		{
-			long starttime = System.currentTimeMillis();
 			while(amplitudes.isEmpty())
 			{
-				try
-				{
-					Thread.sleep(10);
-				}
-				catch (InterruptedException e)
-				{
-				}
-				long poll_time;
-				if((poll_time = System.currentTimeMillis() - starttime) > TIME_OUT)
+				if(Thread.interrupted())
 				{
 					this.dispose();
-					System.out.println("Visualizer.java: Timed out after "+poll_time+" [ms] of no data.");///////////////Debug Output.
+					System.out.println("Visualizer has been interrupted");
 					return;
 				}
 			}
@@ -139,6 +129,9 @@ public class Visualizer extends Frame implements Runnable {
 			} 
 			catch (InterruptedException e) 
 			{
+				this.dispose();
+				System.out.println("Visualizer has been interrupted");
+				return;
 			}
 		}	
 	}
