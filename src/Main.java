@@ -19,19 +19,19 @@ public class Main
 
 	public static void main(String[] args)
 	{
-		final int NBINS;
-		final int FRAME_SZ;
+		final int NBINS; //number of bins for the fourier transform
+		final int FRAME_SZ; //number of samples in one rendered frame of data
 
 		Transformer transformer;
 		int method;
 		boolean parallel = false;
-		Song song;
-		Visualizer visualizer;
-		ConcurrentLinkedQueue<double[]> q = new ConcurrentLinkedQueue<double[]>();
+		Song song; //Song, a parser/container for the raw data
+		Visualizer visualizer; //drawing thread
+		ConcurrentLinkedQueue<double[]> q = new ConcurrentLinkedQueue<double[]>(); //transformed data container, each one is a frame to be rendered
 		Thread visualizerThread;
 		Thread transformerThread;
 		Clip clip;
-		long startTime, endTime;
+		long startTime, endTime; //performance measurment
 
 		if (args.length < 3 || args.length > 3)
 		{
@@ -46,10 +46,8 @@ public class Main
 			if (Integer.parseInt(args[2]) != 0)
 				parallel = true;
 
-			// TODO: put this back after testing
-			//FRAME_SZ = song.getSamplingFreq() * 1 / 60;
-			FRAME_SZ = 512;
-			NBINS = FRAME_SZ;
+			FRAME_SZ = song.getSamplingFreq() * 1 / 60; //sampling freq/refresh rate of a monitor is frame size
+			NBINS = 512; //number of bins is best kept a power of 2
 
 			System.out.format("Frame Size: %d%n", FRAME_SZ);
 			System.out.format("Bin Size: %d%n", NBINS);
@@ -57,7 +55,7 @@ public class Main
 			if (method == 0)
 			{
 				if (parallel)
-					transformer = new ParallelDiscreteFT(q, song, NBINS, 0, FRAME_SZ);
+					transformer = new ParallelDiscreteFT(q, song, NBINS, 0, FRAME_SZ); //construct the transformer as either p or s
 				else
 					transformer = new SequentialDiscreteFT(q, song, NBINS, 0, FRAME_SZ);
 			}
@@ -77,7 +75,17 @@ public class Main
 			
 			// Play the music file.
 			clip = getMusicClip(args[0]);
-			clip.start();
+			clip.start(); //play the music, we don't synchronize the music with the visualizer, so some lag occurs
+			/*NOTE ON HOW TO DO THIS
+			 * clip contains a useful method called getFramePosition()
+			 * This method can be used to keep track of where this thread (that plays the song) is
+			 * 
+			 * all we would have to do in order to make sure the visualizer stayed synchronized with the song is atomic await the visualizer
+			 * with the frame (or a couple before due to lag) it represents
+			 * 
+			 * eg if frame 256 then start rendering it at 256*framesize - 5 and by the time you reach 256*framesize it will be fully drawn
+			 * 
+			 */
 
 			// Initialize and start the visualizer
 			System.out.println("Initializing Visualizer...");
@@ -102,7 +110,7 @@ public class Main
 		{
 			transformerThread.join();
 			endTime = System.currentTimeMillis();
-			System.out.format("Joined Transformer: Execution time: %d%n", endTime - startTime);
+			System.out.format("Joined Transformer: Execution time: %d%n", endTime - startTime); //print time to execute
 			visualizerThread.interrupt();
 			System.out.println("Interrupting visualizer..");
 			visualizerThread.join();
@@ -122,7 +130,7 @@ public class Main
 	{
 		try 
 		{
-		    AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName));
+		    AudioInputStream stream = AudioSystem.getAudioInputStream(new File(fileName)); 
 		    AudioFormat format = stream.getFormat();
 		    DataLine.Info info = new DataLine.Info(Clip.class, format);
 		    Clip clip = (Clip) AudioSystem.getLine(info);

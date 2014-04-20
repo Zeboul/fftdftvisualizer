@@ -21,13 +21,13 @@ public class SequentialDiscreteFT extends Transformer
 	@Override
 	public void run()
 	{
-		for (int i = startPos; i + numBins < datas.length; i += incSize)
+		for (int i = startPos; i + numBins < datas.length; i += incSize) //iterate by incsize (1 for sequential, # threads for parallel)
 		{
 			double[] data;
 			
 			data = transform(i);			
 			
-			while (!queue.offer(data));
+			while (!queue.offer(data)); //place in queue
 		}
 	}
 
@@ -38,7 +38,7 @@ public class SequentialDiscreteFT extends Transformer
 		//wikipedia has the complex formula that's why*/
 		double[] result = new double[numBins];
 
-		for (int i = 0; i < numBins; i++)
+		for (int i = 0; i < numBins; i++) //there are NBINS number of results
 		{
 			double real = 0;
 			double imag = 0;
@@ -46,7 +46,7 @@ public class SequentialDiscreteFT extends Transformer
 			for (int j = 0; j < numBins; j++)
 			{
 				real += datas[startPos + j] * Math.cos(2 * Math.PI * i * j / numBins);
-				imag += -datas[startPos + j] * Math.sin(2 * Math.PI * i * j / numBins);
+				imag += -datas[startPos + j] * Math.sin(2 * Math.PI * i * j / numBins); //the meat of the transform
 			}
 			
 			result[i] = Math.pow(Math.pow(real, (double)2) + Math.pow(imag, 2), (double).5);
