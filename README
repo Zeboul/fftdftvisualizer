@@ -1,3 +1,21 @@
+==COMPILATION==
+
+Invoking "make" in the root directory will compile the visualizer.
+
+
+==RUNNING==
+
+Change directory into "src/" and run "java Main" to see usage information.
+
+
+==FILES==
+
+*.wav
+ Wave files for testing purposes
+
+src/
+ Contains all source code written by us, with the exception of src/WavFile
+
 src/WavFile/
  This code is not our own, it was downloaded from here:
  http://www.labbookpages.co.uk/audio/javaWavFiles.html

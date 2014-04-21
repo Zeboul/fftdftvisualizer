@@ -11,10 +11,10 @@ public class Main
 	public static void usage()
 	{
 		System.out.println("Usage:");
-		System.out.println("\tMainSequentialDFT <wavefile> <method> <parallel>\n");
-		System.out.println("Where method is 0 or 1 (DFT or FFT),");
-		System.out.println("parallel is 0 or 1 (Sequential or Parallel),");
-		System.out.println("and wavefile is a .wav file for input.");
+		System.out.println("\tjava Main <wavefile> <method> <parallel>\n");
+		System.out.println("<method>:\tcurrently only 0 for DFT");
+		System.out.println("<parallel>:\t0 or 1 (Sequential or Parallel)");
+		System.out.println("<wavefile>:\t.wav filename for input");
 	}
 
 	public static void main(String[] args)
@@ -27,7 +27,7 @@ public class Main
 		boolean parallel = false;
 		Song song; //Song, a parser/container for the raw data
 		Visualizer visualizer; //drawing thread
-		ConcurrentLinkedQueue<double[]> q = new ConcurrentLinkedQueue<double[]>(); //transformed data container, each one is a frame to be rendered
+		ConcurrentLinkedQueue<double[]> q;//transformed data container, each one is a frame to be rendered
 		Thread visualizerThread;
 		Thread transformerThread;
 		Clip clip;
@@ -52,21 +52,16 @@ public class Main
 			System.out.format("Frame Size: %d%n", FRAME_SZ);
 			System.out.format("Bin Size: %d%n", NBINS);
 
+			q = new ConcurrentLinkedQueue<double[]>();
+
 			if (method == 0)
 			{
+				//construct the transformer as either p or s
 				if (parallel)
-					transformer = new ParallelDiscreteFT(q, song, NBINS, 0, FRAME_SZ); //construct the transformer as either p or s
+					transformer = new ParallelDiscreteFT(q, song, NBINS, 0, FRAME_SZ); 
 				else
 					transformer = new SequentialDiscreteFT(q, song, NBINS, 0, FRAME_SZ);
 			}
-			// FIXME: Commented for testing
-			/*else if (method == 1)
-			{
-				if (parallel)
-					transformer = new SequentialFFT(q, song, NBINS, 0, FRAME_SZ);
-				else
-					transformer = new ParallelFFT(q, song, NBINS, 0, FRAME_SZ);
-			}*/
 			else
 			{
 				System.out.println("Bad method, quitting");
@@ -80,10 +75,11 @@ public class Main
 			 * clip contains a useful method called getFramePosition()
 			 * This method can be used to keep track of where this thread (that plays the song) is
 			 * 
-			 * all we would have to do in order to make sure the visualizer stayed synchronized with the song is atomic await the visualizer
-			 * with the frame (or a couple before due to lag) it represents
+			 * all we would have to do in order to make sure the visualizer stayed synchronized with the song is atomic
+			 * await the visualizer with the frame (or a couple before due to lag) it represents
 			 * 
-			 * eg if frame 256 then start rendering it at 256*framesize - 5 and by the time you reach 256*framesize it will be fully drawn
+			 * eg if frame 256 then start rendering it at 256*framesize - 5 and by the time you reach 256*framesize it
+			 * will be fully drawn
 			 * 
 			 */
 

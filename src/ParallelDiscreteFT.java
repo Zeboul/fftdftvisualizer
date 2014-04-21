@@ -3,7 +3,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
 
-
 public class ParallelDiscreteFT extends SequentialDiscreteFT
 {
 	public ParallelDiscreteFT(Queue<double[]> queue, Song song, int numBins, int startPos,
@@ -23,6 +22,7 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 		
 		try
 		{
+			// Generate queues for each Sequential thread, and create the threads
 			for (int i = 0, s = startPos; i < NUM_PROCS; i++, s += incSize)
 			{
 				threadQueues.add(new ConcurrentLinkedQueue<double[]>());
@@ -31,9 +31,11 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 				thread[i] = new Thread(sequentialDiscreteFT[i]);
 			}
 
+			// Start the threads around the same time to reduce delays
 			for (int i = 0; i < NUM_PROCS; i++)
 				thread[i].start();
 
+			// Wait for data to come out of the threads, but only accept it in the correct order
 			for (int i = 0; i < datas.length / incSize - NUM_PROCS; i++)
 			{
 				data = null;
@@ -43,6 +45,7 @@ public class ParallelDiscreteFT extends SequentialDiscreteFT
 					data = threadQueues.get(i % NUM_PROCS).poll();
 				} while (data == null);
 
+				// Place data into the primary queue
 				while (!queue.offer(data));
 			}
 
